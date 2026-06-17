@@ -1,12 +1,29 @@
-fastapi>=0.111.0
-uvicorn[standard]>=0.23.0
-python-multipart>=0.0.6
-pydantic>=2.8.0
-httpx>=0.24.0
-python-dotenv>=1.1.0
-PyMuPDF>=1.22.0
-python-dateutil>=2.8.2
-
-# Note: ocrmypdf, tesseract, and Calibre (ebook-convert) are system binaries and must be installed on the host.
-# Install them separately via your package manager, e.g.: sudo apt install tesseract-ocr ghostscript
-# and install Calibre from their site to get `ebook-convert`.
+annotated-doc==0.0.4
+annotated-types==0.7.0
+anyio==4.13.0
+certifi==2026.5.20
+click==8.4.1
+fastapi==0.136.3
+h11==0.16.0
+httpcore==1.0.9
+httptools==0.8.0
+httpx==0.28.1
+idna==3.18
+packaging==26.2
+pydantic==2.13.4
+pydantic_core==2.46.4
+PyMuPDF==1.27.2.3
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.2
+python-multipart==0.0.32
+PyYAML==6.0.3
+setuptools==82.0.1
+six==1.17.0
+starlette==1.3.1
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+uvicorn==0.49.0
+uvloop==0.22.1
+watchfiles==1.2.0
+websockets==16.0
+wheel==0.47.0
