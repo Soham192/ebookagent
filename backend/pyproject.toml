@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "kindle-agent-backend"
+version = "0.1.0"
+description = "FastAPI backend for Kindle Agent"
+authors = ["kindle agent"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.111.2"
+uvicorn = {extras = ["standard"], version = "^0.23.3"}
+python-multipart = "^0.0.6"
+pydantic = "^2.8.0"
+httpx = "^0.24.0"
+python-dotenv = "^1.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.5.0"]
+build-backend = "poetry.core.masonry.api"
