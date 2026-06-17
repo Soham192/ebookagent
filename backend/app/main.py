@@ -1,11 +1,11 @@
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, UploadFile, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from uuid import uuid4
 import shutil
 import json
+import os
 
 from dotenv import load_dotenv
 from app.agent import Agent
@@ -17,9 +17,16 @@ load_dotenv()
 
 app = FastAPI(title="Universal E-Reader Agent Backend")
 
+default_origins = ["http://localhost:3000", "http://localhost:3001"]
+frontend_origins = [
+    origin.strip()
+    for origin in os.getenv("FRONTEND_ORIGIN", "").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=default_origins + frontend_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,6 +45,10 @@ DELIVERY_ADAPTERS = {
     "kindle": KindleAdapter(),
 }
 
+@app.get("/")
+def health_check():
+    return {"status": "ok"}
+
 @app.get("/smtp_test")
 def smtp_test():
     result = verify_smtp_credentials()
@@ -47,6 +58,7 @@ def smtp_test():
 
 @app.post("/upload")
 async def upload_pdf(
+    request: Request,
     file: UploadFile = File(...),
     title: str | None = Form(None),
     author: str | None = Form(None),
@@ -103,11 +115,19 @@ async def upload_pdf(
         with pending_file.open("w", encoding="utf-8") as pf:
             json.dump(pending, pf)
 
+    public_base_url = os.getenv("BACKEND_PUBLIC_URL", "").rstrip("/")
+    download_path = f"/download/{file_id}/{result['format']}"
+    download_url = f"{public_base_url}{download_path}" if public_base_url else str(request.url_for(
+        "download_output",
+        task_id=file_id,
+        output_format=result["format"],
+    ))
+
     return {
         "status": "ok",
         "task_id": file_id,
         "destination": destination,
-        "download_url": f"http://localhost:8000/download/{file_id}/{result['format']}",
+        "download_url": download_url,
         "output": result,
         "delivery": delivery_result,
         "delivery_queued": bool(destination == "kindle" and not delivery_result.get("sent")),

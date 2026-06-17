@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+
 export default function UploadForm({ onResult }) {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('');
@@ -29,7 +31,7 @@ export default function UploadForm({ onResult }) {
     formData.append('destination', destination);
 
     try {
-      const response = await fetch('http://localhost:8000/upload', {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
         body: formData,
       });

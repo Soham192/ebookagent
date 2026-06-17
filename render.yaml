@@ -1,15 +1,14 @@
 services:
   - type: web
     name: ebook-agent-backend
-    env: docker
-    dockerfilePath: Dockerfile
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
     envVars:
       - key: FRONTEND_ORIGIN
-        scope: preview
-        value: http://localhost:3001
-      - key: FRONTEND_ORIGIN
-        scope: production
         value: https://your-vercel-url.vercel.app
+      - key: BACKEND_PUBLIC_URL
+        value: https://your-render-service.onrender.com
       - key: SMTP_HOST
         value: localhost
       - key: SMTP_PORT
