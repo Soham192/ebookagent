@@ -1,10 +1,8 @@
 services:
   - type: web
     name: ebook-agent-backend
-    runtime: python
-    pythonVersion: 3.11
-    buildCommand: apt-get update && apt-get install -y tesseract-ocr ghostscript calibre && pip install -r backend/requirements.txt
-    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000
+    env: docker
+    dockerfilePath: Dockerfile
     envVars:
       - key: FRONTEND_ORIGIN
         scope: preview
