@@ -26,6 +26,7 @@ class Agent:
         output_name: str | None = None,
     ) -> ProcessResult:
         pdf_path = Path(pdf_path)
+        original_pdf_path = pdf_path
         analysis = analyze_pdf(pdf_path)
 
         ocr_error = None
@@ -57,13 +58,30 @@ class Agent:
                 "ocr_error": ocr_error,
             }
 
-        convert_document(
-            pdf_path,
-            output_path,
-            title=title,
-            author=author,
-            output_format=output_format,
-        )
+        try:
+            convert_document(
+                pdf_path,
+                output_path,
+                title=title,
+                author=author,
+                output_format=output_format,
+            )
+        except RuntimeError as conversion_error:
+            normalized_pdf_path = original_pdf_path.parent / f"{original_pdf_path.stem}_normalized.pdf"
+            try:
+                run_ocr(original_pdf_path, normalized_pdf_path, force=True)
+                convert_document(
+                    normalized_pdf_path,
+                    output_path,
+                    title=title,
+                    author=author,
+                    output_format=output_format,
+                )
+                ocr_error = ocr_error or "Direct conversion failed; succeeded after OCR normalization."
+            except RuntimeError as fallback_error:
+                raise RuntimeError(
+                    f"{conversion_error} OCR normalization fallback also failed: {fallback_error}"
+                ) from fallback_error
 
         return {
             "output_path": str(output_path),

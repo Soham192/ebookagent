@@ -2,13 +2,13 @@ import subprocess
 from pathlib import Path
 
 
-def run_ocr(input_pdf: str, output_pdf: str) -> None:
+def run_ocr(input_pdf: str, output_pdf: str, force: bool = False) -> None:
     input_pdf = Path(input_pdf)
     output_pdf = Path(output_pdf)
 
     command = [
         "ocrmypdf",
-        "--skip-text",
+        "--force-ocr" if force else "--skip-text",
         "--output-type",
         "pdf",
         str(input_pdf),

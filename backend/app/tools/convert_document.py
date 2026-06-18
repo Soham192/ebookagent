@@ -14,12 +14,14 @@ def convert_document(input_pdf: str, output_path: str, title: str, author: str, 
         author,
     ]
     try:
-        subprocess.run(command, check=True)
+        subprocess.run(command, check=True, capture_output=True, text=True)
     except FileNotFoundError as exc:
         raise RuntimeError(
             "Conversion tool not found. Please install Calibre and ensure ebook-convert is available."
         ) from exc
     except subprocess.CalledProcessError as exc:
+        stderr = exc.stderr.strip() if exc.stderr else str(exc)
         raise RuntimeError(
-            f"Document conversion failed: {exc}. Verify the format is supported and Calibre is installed."
+            "Document conversion failed. Verify the format is supported and Calibre is installed. "
+            f"Command output: {stderr}"
         ) from exc
