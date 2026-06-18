@@ -20,7 +20,7 @@ export default function UploadForm({ onResult }) {
     }
 
     setLoading(true);
-    setMessage('Uploading...');
+    setMessage('Uploading and processing...');
 
     const formData = new FormData();
     formData.append('file', file);
@@ -37,22 +37,24 @@ export default function UploadForm({ onResult }) {
       });
 
       if (!response.ok) {
-        let errorMessage = 'Upload failed';
+        let errorMessage = `Upload failed with status ${response.status}`;
+        let responseText = '';
         try {
-          const errorBody = await response.json();
+          responseText = await response.text();
+          const errorBody = responseText ? JSON.parse(responseText) : {};
           errorMessage = errorBody.detail || errorBody.error || errorMessage;
-        } catch (jsonError) {
-          errorMessage = response.statusText || errorMessage;
+        } catch (parseError) {
+          errorMessage = responseText || response.statusText || errorMessage;
         }
         setMessage(errorMessage);
         onResult(null);
       } else {
         const data = await response.json();
-        setMessage('Upload complete.');
+        setMessage('Processing complete.');
         onResult(data);
       }
     } catch (error) {
-      setMessage('Unable to reach backend.');
+      setMessage(`Unable to reach backend: ${error.message}`);
       onResult(null);
     } finally {
       setLoading(false);

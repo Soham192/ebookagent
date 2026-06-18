@@ -74,9 +74,11 @@ async def upload_pdf(
         raise HTTPException(status_code=400, detail="Only PDF uploads are supported")
 
     file_id = uuid4().hex
+    print(f"[upload:{file_id}] received {file.filename}", flush=True)
     saved_path = UPLOAD_DIR / f"{file_id}.pdf"
     with saved_path.open("wb") as f:
         shutil.copyfileobj(file.file, f)
+    print(f"[upload:{file_id}] saved upload to disk", flush=True)
 
     metadata = {
         "title": title,
@@ -95,11 +97,13 @@ async def upload_pdf(
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     delivery_adapter = DELIVERY_ADAPTERS[destination]
+    print(f"[upload:{file_id}] starting {destination} delivery", flush=True)
     delivery_result = delivery_adapter.deliver(
         Path(result["output_path"]),
         metadata,
         destination,
     )
+    print(f"[upload:{file_id}] delivery complete: {delivery_result}", flush=True)
 
     if destination == "kindle" and not delivery_result.get("sent"):
         pending = {

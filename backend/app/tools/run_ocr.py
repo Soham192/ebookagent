@@ -1,8 +1,10 @@
 import subprocess
+import os
 from pathlib import Path
 
 
 def run_ocr(input_pdf: str, output_pdf: str, force: bool = False) -> None:
+    timeout_seconds = int(os.getenv("OCR_TIMEOUT_SECONDS", "120"))
     input_pdf = Path(input_pdf)
     output_pdf = Path(output_pdf)
 
@@ -15,10 +17,21 @@ def run_ocr(input_pdf: str, output_pdf: str, force: bool = False) -> None:
         str(output_pdf),
     ]
     try:
-        subprocess.run(command, check=True, capture_output=True, text=True)
+        subprocess.run(
+            command,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
     except FileNotFoundError as exc:
         raise RuntimeError(
             "OCR tool not found. Please install ocrmypdf and tesseract."
+        ) from exc
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            f"OCR processing timed out after {timeout_seconds} seconds. "
+            "Try a smaller PDF, a text-based PDF, or increase OCR_TIMEOUT_SECONDS."
         ) from exc
     except subprocess.CalledProcessError as exc:
         stderr = exc.stderr.strip() if exc.stderr else str(exc)
